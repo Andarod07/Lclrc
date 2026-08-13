@@ -2,6 +2,7 @@ const express = require("express");
 const authRoutes = express.Router();
 const { client } = require("./db");
 
+
 const Ldb = client.db("Ldb")
 const users = Ldb.collection("users")
 
@@ -13,7 +14,7 @@ authRoutes.get("/",(req,res)=>{
 authRoutes.post("/register",async (req,res)=>{
     let username = req.body.username
     let password = req.body.password
-    let role = req.body.role
+    let role = req.body.role 
     let newUser = {username: username, password:password, role:role}
 
     let user = await users.findOne({username:username})

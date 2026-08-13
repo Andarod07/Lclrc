@@ -1,9 +1,12 @@
-//MongoDB connection and init
+// MongoDB connection and init
+require('dotenv').config();
 const { MongoClient } = require('mongodb');
-const url = "mongodb+srv://angeldavidbecerra5_db_user:CBEZeUqOxTOItDc0@cluster0.tdkca5e.mongodb.net/?appName=Cluster0";
+
+const url = process.env.MONGODB_URI;
+if (!url) console.error('MONGODB_URI is not set in environment');
 const client = new MongoClient(url);
 
-async function connectDB() {
+async function connectDB() { 
      try {
         await client.connect();
         console.log("connected to mongoDB database");
