@@ -1,15 +1,14 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT;
 app.use(express.json());
 
 const authRoutes = require("./routes/authRoutes")
 app.use('/auth', authRoutes)
 
-
 const MongoUrl = process.env.MONGODB_URI;
-console.log('MONGODB_URI=', MongoUrl)
+
 
 // Basic route
 app.get('/', (req, res) => {
