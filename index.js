@@ -1,6 +1,13 @@
 const express = require('express');
 const app = express();
 const PORT = 3000;
+app.use(express.json());
+
+const authRoutes = require("./routes/authRoutes")
+app.use('/auth', authRoutes)
+
+
+
 
 // Basic route
 app.get('/', (req, res) => {
@@ -11,3 +18,4 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
