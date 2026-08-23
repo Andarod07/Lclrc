@@ -4,11 +4,16 @@ const app = express();
 const PORT = process.env.PORT;
 app.use(express.json());
 
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
 const authRoutes = require("./routes/authRoutes")
 app.use('/auth', authRoutes)
 
-const MongoUrl = process.env.MONGODB_URI;
-
+const authenticateToken = require('./routes/authMiddleware');
+const privRoutes = require('./routes/priv_routes')
+//Private routes
+app.use("/priv",authenticateToken,privRoutes)
 
 // Basic route
 app.get('/', (req, res) => {
