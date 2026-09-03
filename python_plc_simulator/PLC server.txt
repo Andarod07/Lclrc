@@ -1,0 +1,2 @@
+cd /home/angel/projects/Leclerc/python_plc_simulator
+python3 plc-server.py

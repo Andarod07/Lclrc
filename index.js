@@ -7,8 +7,15 @@ app.use(express.json());
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
+//setup plc listener requirement
+const plc_listener = require("./PlC_routes/plc_listener")
+
+//setup routes 
 const authRoutes = require("./routes/authRoutes")
 app.use('/auth', authRoutes)
+const editPLCs = require("./PlC_routes/editPLCs")
+app.use("/plc", editPLCs)
+
 
 const authenticateToken = require('./routes/authMiddleware');
 const privRoutes = require('./routes/priv_routes')
