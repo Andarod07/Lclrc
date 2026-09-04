@@ -5,58 +5,70 @@ const { client } = require("../routes/db");
 const Ldb = client.db("Ldb")
 const plcs = Ldb.collection("plcs")
 
-//define func to read
-read = async () => {
-
-    tags = plcDB[0].tags
-    //console.log(tags.length)
-
-    tags.map(async element => {
-        reading = element.name +": "+ await plc.read(element.name)
-        console.log(reading)
-    });
-
-}
 
 class PlcConnection {
   constructor(name) {
+    this.name = name
     this.config;       // the Mongo document: ip, slot, tags, pollIntervalMs...
-    this.db = null;               // so it can insert readings itself
+    this.db = null;             // so it can insert readings itself
     this.plc = null;            // will hold the `PLC` instance once connected
     this.intervalId = null;     // so `stop()` can clear it later
     this.connected = false;
   }
 
-  async test(){
+  async pollOnce() {
+    // Read all tags in this.config.tags, build a reading object,
+    // insert into this.db. What did Stage 7 look like?
     const plc = new PLC();
-    const plcDB = await plcs.find().toArray()
-    let name = plcDB[0].name;
-    let ip = plcDB[0].ip;
-    let slot = plcDB[0].slot;
-    let pollIntervalMs = plcDB[0].pollIntervalMs;
-    let tags = plcDB[0].tags;
-    let enabled = plcDB[0].enabled;
+    const plcDB = await plcs.findOne({name: this.name})//.toArray();
+    //console.log(plcDB)
+    let name = plcDB.name;
+    let ip = plcDB.ip;
+    let slot = plcDB.slot;
+    let pollIntervalMs = plcDB.pollIntervalMs;
+    let tags = plcDB.tags;
+    let enabled = plcDB.enabled;
     
     this.config = {name,ip,slot,pollIntervalMs,tags,enabled};
     console.log(this.config);
   }
+
   async connect() {
+    const plc = new PLC();
+    let ip = this.config.ip;
+    let slot = this.config.slot;
+    console.log(ip);
+    console.log(slot);
 
-    
-    //console.log(ip)
-    //console.log(slot)
-
-    //await plc.connect(ip, { slot: slot });
-    //console.log('Connected to simulated PLC');
+    await plc.connect(ip, { slot: slot });
+    this.plc = plc;
+    //console.log(this.plc);
+    console.log('Connected to simulated PLC');
   }
 
-  async pollOnce() {
-    // Read all tags in this.config.tags, build a reading object,
-    // insert into this.db. What did Stage 7 look like?
+  async init() {
+    await this.pollOnce();
+    console.log(this.config.enabled)
+    await this.connect();
   }
 
-  start() {
+  async start() {
     // Set up setInterval calling this.pollOnce(), store the id in this.intervalId
+    await this.init()
+    
+    setInterval(() => {
+      this.config.tags.map(async (tag)=>{
+        let tag_name = tag.name
+        let tags
+        let reading = await this.plc.read(tag_name)
+        console.log(tag_name+": "+reading)
+      })
+      
+
+    },2000)
+    
+    
+
   }
 
   stop() {
@@ -64,5 +76,17 @@ class PlcConnection {
   }
 }
 
+
+getallPLCs = async ()=>{
+  allPLCs = await plcs.find({}, {projection: {name:1,_id:0}}).toArray()
+  console.log(allPLCs)
+}
+
+//getallPLCs()
+
 plc1 = new PlcConnection("Line1_Motor_PLC");
-plc1.test()
+
+//plc1.pollOnce()
+plc1.start()
+
+
