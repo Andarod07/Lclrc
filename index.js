@@ -4,6 +4,10 @@ const app = express();
 const PORT = process.env.PORT;
 app.use(express.json());
 
+//react
+const cors = require('cors');
+app.use(cors());
+
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
@@ -16,9 +20,7 @@ app.use('/auth', authRoutes)
 const editPLCs = require("./PlC_routes/editPLCs")
 app.use("/plc", editPLCs)
 
-//react
-const cors = require('cors');
-app.use(cors());
+
 
 
 const authenticateToken = require('./routes/authMiddleware');

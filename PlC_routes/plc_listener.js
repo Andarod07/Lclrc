@@ -39,9 +39,9 @@ class PlcConnection {
     // Read all tags in this.config.tags, build a reading object,
     // insert into this.db. What did Stage 7 look like?
     const plc = new PLC();
-    const plcDB = await plcs.findOne({name: this.name})//.toArray();
-    //console.log(plcDB.tags)
-    let name = plcDB.name;
+    const plcDB = await plcs.findOne({name: this.address})//.toArray();
+    console.log(plcDB)
+    let name = plcDB.address;
     let plant = plcDB.plant;
     let area = plcDB.area;
     let line = plcDB.line

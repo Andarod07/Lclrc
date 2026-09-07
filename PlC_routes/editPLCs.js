@@ -57,7 +57,7 @@ editPLCs.get("/",async (req,res)=>{
   }
 
 editPLCs.post("/plcPost",async (req,res)=>{
-    await plcs.insertOne(req)
+    await plcs.insertOne(req.body)
     res.send("Inserted "+req.name)
 })
 

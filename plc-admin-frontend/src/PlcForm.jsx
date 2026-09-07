@@ -6,7 +6,7 @@ const emptyTag = { address: '', equipment: '', metric: '', unit: '' };
 
 export default function PlcForm() {
   const [form, setForm] = useState({
-    id: '',
+    address: '',
     plant: '',
     area: '',
     line: '',
@@ -39,7 +39,7 @@ export default function PlcForm() {
     setSubmitting(true);
 
     const payload = {
-      id: form.id,
+      address: form.address,
       plant: form.plant,
       area: form.area,
       line: form.line,
@@ -59,7 +59,7 @@ export default function PlcForm() {
       if (!res.ok) throw new Error(`Server responded ${res.status}`);
 
       setStatus({ type: 'success', message: 'PLC saved successfully' });
-      setForm({ id: '', plant: '', area: '', line: '', ip: '', slot: 0, pollIntervalMs: 2000, enabled: true });
+      setForm({ address: '', plant: '', area: '', line: '', ip: '', slot: 0, pollIntervalMs: 2000, enabled: true });
       setTags([{ ...emptyTag }]);
     } catch (err) {
       setStatus({ type: 'error', message: err.message });
@@ -89,8 +89,8 @@ export default function PlcForm() {
             </div>
             <div className="grid grid-2">
               <div className="field">
-                <label>PLC ID</label>
-                <input placeholder="PLC_001" value={form.id} onChange={e => updateField('id', e.target.value)} required />
+                <label>PLC Address</label>
+                <input placeholder="PLC_001" value={form.address} onChange={e => updateField('address', e.target.value)} required />
               </div>
               <div className="field">
                 <label>Plant</label>
