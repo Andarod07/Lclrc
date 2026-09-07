@@ -9,11 +9,8 @@ const plcs = Ldb.collection("plcs")
 const { InfluxDBClient, Point } = require('@influxdata/influxdb3-client');
 
 //INIT INFLUX
-async function initInflux() {
+initInFlux = async ()=>{
   const influx = await import("@influxdata/influxdb3-client");
-
-  InfluxDBClient = influx.InfluxDBClient;
-  Point = influx.Point;
 
   const influxClient = new InfluxDBClient({
     host: process.env.INFLUX_URL,
@@ -22,6 +19,8 @@ async function initInflux() {
 
   return influxClient;
 }
+
+
 
 
 
@@ -41,24 +40,25 @@ class PlcConnection {
     // insert into this.db. What did Stage 7 look like?
     const plc = new PLC();
     const plcDB = await plcs.findOne({name: this.name})//.toArray();
-    //console.log(plcDB)
+    //console.log(plcDB.tags)
     let name = plcDB.name;
-    let ip = plcDB.ip;
-    let slot = plcDB.slot;
+    let plant = plcDB.plant;
+    let area = plcDB.area;
+    let line = plcDB.line
+    let ip = plcDB.connection.ip;
+    let slot = plcDB.connection.slot;
     let pollIntervalMs = plcDB.pollIntervalMs;
     let tags = plcDB.tags;
     let enabled = plcDB.enabled;
     
-    this.config = {name,ip,slot,pollIntervalMs,tags,enabled};
-    console.log(this.config);
+    this.config = {name,plant,area,line,ip,slot,pollIntervalMs,tags,enabled};
+    //console.log(this.config);
   }
 
   async connect() {
     const plc = new PLC();
     let ip = this.config.ip;
     let slot = this.config.slot;
-    console.log(ip);
-    console.log(slot);
 
     await plc.connect(ip, { slot: slot });
     this.plc = plc;
@@ -68,33 +68,55 @@ class PlcConnection {
 
   async init() {
     await this.pollOnce();
-    console.log(this.config.enabled)
+    //console.log(this.config.enabled)
     await this.connect();
   }
 
-  async test(){
+  async test(){ 
     await this.init()
-
+    
+    const Influx_client = await initInFlux();
+    
     this.config.tags.map(async (tag)=>{
-      let tag_name = tag.name
-      let tags
+      let tag_name = tag.address
       let reading = await this.plc.read(tag_name)
-      //console.log(tag_name+": "+reading)
-      console.log(this.config)
+
+      const point = Point.measurement("plc_data")
+      .setTag("plant", this.config.plant)
+      .setTag("area", this.config.area)
+      .setTag("line", this.config.line)
+      .setTag("plc", this.config.id)
+      .setTag("equipment", tag.equipment)
+      .setTag("metric", tag.metric)
+      .setFloatField("value", reading);
+
+      console.log(tag_name+": "+reading)
+      await Influx_client.write(point, process.env.INFLUX_DB);
     })
   }
 
   async start() {
     // Set up setInterval calling this.pollOnce(), store the id in this.intervalId
     await this.init()
+    const Influx_client = await initInFlux();
     
-    setInterval(async () => {
-      this.config.tags.map(async (tag)=>{
-        let tag_name = tag.name
-        let tags
-        let reading = await this.plc.read(tag_name)
-        console.log(tag_name+": "+reading)
-      })
+    setInterval(async () => {    
+    this.config.tags.map(async (tag)=>{
+      let tag_name = tag.address
+      let reading = await this.plc.read(tag_name)
+
+      const point = Point.measurement("plc_data")
+      .setTag("plant", this.config.plant)
+      .setTag("area", this.config.area)
+      .setTag("line", this.config.line)
+      .setTag("plc", this.config.id)
+      .setTag("equipment", tag.equipment)
+      .setTag("metric", tag.metric)
+      .setFloatField("value", reading);
+
+      console.log(tag_name+": "+reading)
+      await Influx_client.write(point, process.env.INFLUX_DB);
+    })
     },2000)
   }
 
@@ -111,10 +133,10 @@ getallPLCs = async ()=>{
 
 //getallPLCs()
 
-plc1 = new PlcConnection("Line1_Motor_PLC");
+plc1 = new PlcConnection("PLC_001");
 
-//plc1.pollOnce()
-//plc1.start()
+
+plc1.start()
 //plc1.test()
 
 

@@ -9,12 +9,13 @@ const client = new MongoClient(url);
 async function connectDB() { 
      try {
         await client.connect();
-        console.log("connected to mongoDB database");
+        await console.log("connected to mongoDB database");
      } catch (error) {
         console.error(error);
      }
 }
 
-connectDB()
+connect = async ()=>{await connectDB()}
+connect()
 
 module.exports = { client };

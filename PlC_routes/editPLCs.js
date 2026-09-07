@@ -12,37 +12,49 @@ editPLCs.get("/",async (req,res)=>{
     res.json(plc)
 })
 
-testPLC = {
-  name: "PLC_001",
-  plant: "Plant_01",
-  area: "Area_A",
-  line: "Line_01",
+  testPLC = {
+    name: "PLC_001",
 
-  ip: "127.0.0.1",
-  slot: 0,
+    plant: "Plant_01",
+    area: "Area_A",
+    line: "Line_01",
 
-  pollIntervalMs: 2000,
+    connection: {
+      ip: "127.0.0.1",
+      slot: 0
+    },
 
-  tags: [
-    {
-      name: "Motor1_Temp",
-      label: "temperature"
-    },
-    {
-      name: "Motor1_RPM",
-      label: "rpm"
-    },
-    {
-      name: "Motor1_Current",
-      label: "current"
-    },
-    {
-      name: "Motor1_Status",
-      label: "status"
-    }
-  ],
-  enabled: true
-}
+    pollIntervalMs: 2000,
+
+    tags: [
+      {
+        address: "Motor1_Temp",
+        equipment: "Motor_01",
+        metric: "temperature",
+        unit: "°C"
+      },
+      {
+        address: "Motor1_RPM",
+        equipment: "Motor_01",
+        metric: "speed",
+        unit: "rpm"
+      },
+      {
+        address: "Motor1_Current",
+        equipment: "Motor_01",
+        metric: "current",
+        unit: "A"
+      },
+      {
+        address: "Motor1_Status",
+        equipment: "Motor_01",
+        metric: "status",
+        unit: null
+      }
+    ],
+
+    enabled: true
+  }
 
 editPLCs.post("/test",async (req,res)=>{
     await plcs.insertOne(testPLC)
@@ -50,7 +62,7 @@ editPLCs.post("/test",async (req,res)=>{
 })
 
 editPLCs.post("/delete_test",async (req,res)=>{
-    await plcs.deleteOne({name:"Line1_Motor_PLC"})
+    await plcs.deleteOne({name:"PLC_001"})
 
     res.send("deleted "+testPLC.name)
 })
