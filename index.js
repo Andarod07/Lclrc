@@ -16,6 +16,10 @@ app.use('/auth', authRoutes)
 const editPLCs = require("./PlC_routes/editPLCs")
 app.use("/plc", editPLCs)
 
+//react
+const cors = require('cors');
+app.use(cors());
+
 
 const authenticateToken = require('./routes/authMiddleware');
 const privRoutes = require('./routes/priv_routes')

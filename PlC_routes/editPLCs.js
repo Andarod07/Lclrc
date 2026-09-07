@@ -56,12 +56,12 @@ editPLCs.get("/",async (req,res)=>{
     enabled: true
   }
 
-editPLCs.post("/test",async (req,res)=>{
-    await plcs.insertOne(testPLC)
-    res.send("Inserted "+testPLC.name)
+editPLCs.post("/plcPost",async (req,res)=>{
+    await plcs.insertOne(req)
+    res.send("Inserted "+req.name)
 })
 
-editPLCs.post("/delete_test",async (req,res)=>{
+editPLCs.post("/deletePLC",async (req,res)=>{
     await plcs.deleteOne({name:"PLC_001"})
 
     res.send("deleted "+testPLC.name)

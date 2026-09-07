@@ -1,0 +1,2 @@
+export const API_BASE_URL = 'http://localhost:3000'; // CHANGE: your Express server's base URL
+export const PLC_ENDPOINT = `http://localhost:3000/plc/plcPost`; // CHANGE: your actual PLC creation route
