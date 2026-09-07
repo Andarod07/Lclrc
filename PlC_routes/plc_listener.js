@@ -5,10 +5,30 @@ const { client } = require("../routes/db");
 const Ldb = client.db("Ldb")
 const plcs = Ldb.collection("plcs")
 
+//INFLUX
+const { InfluxDBClient, Point } = require('@influxdata/influxdb3-client');
+
+//INIT INFLUX
+async function initInflux() {
+  const influx = await import("@influxdata/influxdb3-client");
+
+  InfluxDBClient = influx.InfluxDBClient;
+  Point = influx.Point;
+
+  const influxClient = new InfluxDBClient({
+    host: process.env.INFLUX_URL,
+    token: process.env.INFLUXDB_TOKEN
+  });
+
+  return influxClient;
+}
+
+
+
 
 class PlcConnection {
   constructor(name) {
-    this.name = name
+    this.name = name 
     this.config;       // the Mongo document: ip, slot, tags, pollIntervalMs...
     this.db = null;             // so it can insert readings itself
     this.plc = null;            // will hold the `PLC` instance once connected
@@ -52,23 +72,30 @@ class PlcConnection {
     await this.connect();
   }
 
+  async test(){
+    await this.init()
+
+    this.config.tags.map(async (tag)=>{
+      let tag_name = tag.name
+      let tags
+      let reading = await this.plc.read(tag_name)
+      //console.log(tag_name+": "+reading)
+      console.log(this.config)
+    })
+  }
+
   async start() {
     // Set up setInterval calling this.pollOnce(), store the id in this.intervalId
     await this.init()
     
-    setInterval(() => {
+    setInterval(async () => {
       this.config.tags.map(async (tag)=>{
         let tag_name = tag.name
         let tags
         let reading = await this.plc.read(tag_name)
         console.log(tag_name+": "+reading)
       })
-      
-
     },2000)
-    
-    
-
   }
 
   stop() {
@@ -87,6 +114,7 @@ getallPLCs = async ()=>{
 plc1 = new PlcConnection("Line1_Motor_PLC");
 
 //plc1.pollOnce()
-plc1.start()
+//plc1.start()
+//plc1.test()
 
 

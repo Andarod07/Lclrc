@@ -10,6 +10,7 @@
   "keywords": [],
   "type": "commonjs",
   "dependencies": {
+    "@influxdata/influxdb3-client": "^2.4.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.4.2",

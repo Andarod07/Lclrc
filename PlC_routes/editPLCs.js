@@ -13,15 +13,33 @@ editPLCs.get("/",async (req,res)=>{
 })
 
 testPLC = {
-  name: "Line1_Motor_PLC",
-  ip: "127.0.0.1", // your simulator for now
+  name: "PLC_001",
+  plant: "Plant_01",
+  area: "Area_A",
+  line: "Line_01",
+
+  ip: "127.0.0.1",
   slot: 0,
+
   pollIntervalMs: 2000,
+
   tags: [
-    { name: "Motor1_Temp", label: "temperature" },
-    { name: "Motor1_RPM", label: "rpm" },
-    { name: "Motor1_Current", label: "current" },
-    { name: "Motor1_Status", label: "status" }
+    {
+      name: "Motor1_Temp",
+      label: "temperature"
+    },
+    {
+      name: "Motor1_RPM",
+      label: "rpm"
+    },
+    {
+      name: "Motor1_Current",
+      label: "current"
+    },
+    {
+      name: "Motor1_Status",
+      label: "status"
+    }
   ],
   enabled: true
 }
