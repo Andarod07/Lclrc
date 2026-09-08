@@ -78,8 +78,7 @@ class PlcConnection {
 
     let influxClient = await initInflux() 
     this.config.tags.map(async (tag)=>{
-      let tag_name = tag.name
-      let tags
+      let tag_name = tag.address
       let reading = await this.plc.read(tag_name)
       //console.log(tag_name+": "+reading)
       const point = Point.measurement("plc_data")
