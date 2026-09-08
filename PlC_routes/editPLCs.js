@@ -13,37 +13,43 @@ editPLCs.get("/",async (req,res)=>{
 })
 
 testPLC = {
-  name: "PLC_001",
-  plant: "Plant_01",
-  area: "Area_A",
-  line: "Line_01",
-
-  ip: "127.0.0.1",
-  slot: 0,
-
+  name: 'PLC_001',
+  plant: 'Plant_01',
+  area: 'Area_A',
+  line: 'Line_01',
+  connection: {
+    ip: '172.0.0.1',
+    slot: 0
+  },
   pollIntervalMs: 2000,
-
   tags: [
     {
-      name: "Motor1_Temp",
-      label: "temperature"
+      address: 'Motor1_Temp',
+      equipment: 'Motor_01',
+      metric: 'temperature',
+      unit: '°C'
     },
     {
-      name: "Motor1_RPM",
-      label: "rpm"
+      address: 'Motor1_RPM',
+      equipment: 'Motor_01',
+      metric: 'speed',
+      unit: 'rpm'
     },
     {
-      name: "Motor1_Current",
-      label: "current"
+      address: 'Motor1_Current',
+      equipment: 'Motor_01',
+      metric: 'current',
+      unit: 'A'
     },
     {
-      name: "Motor1_Status",
-      label: "status"
+      address: 'Motor1_Status',
+      equipment: 'Motor_01',
+      metric: 'status',
+      unit: null
     }
   ],
   enabled: true
 }
-
 editPLCs.post("/test",async (req,res)=>{
     await plcs.insertOne(testPLC)
     res.send("Inserted "+testPLC.name)

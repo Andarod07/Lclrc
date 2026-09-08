@@ -12,9 +12,6 @@ const { InfluxDBClient, Point } = require('@influxdata/influxdb3-client');
 async function initInflux() {
   const influx = await import("@influxdata/influxdb3-client");
 
-  InfluxDBClient = influx.InfluxDBClient;
-  Point = influx.Point;
-
   const influxClient = new InfluxDBClient({
     host: process.env.INFLUX_URL,
     token: process.env.INFLUXDB_TOKEN
@@ -42,20 +39,24 @@ class PlcConnection {
     const plc = new PLC();
     const plcDB = await plcs.findOne({name: this.name})//.toArray();
     //console.log(plcDB)
-    let name = plcDB.name;
-    let ip = plcDB.ip;
-    let slot = plcDB.slot;
-    let pollIntervalMs = plcDB.pollIntervalMs;
-    let tags = plcDB.tags;
-    let enabled = plcDB.enabled;
-    
-    this.config = {name,ip,slot,pollIntervalMs,tags,enabled};
-    console.log(this.config);
+    console.log(this.name)
+    this.config = {    
+    name: plcDB.name,
+    plant: plcDB.plant,
+    area: plcDB.area,
+    line: plcDB.line,
+    ip: plcDB.connection.ip,        // nested — not plcDB.ip
+    slot: plcDB.connection.slot,    // nested — not plcDB.slot
+    pollIntervalMs: plcDB.pollIntervalMs,
+    tags: plcDB.tags,
+    enabled: plcDB.enabled,
+    };
+    //console.log(this.config);
   }
 
   async connect() {
-    const plc = new PLC();
-    let ip = this.config.ip;
+    const plc = new PLC(); 
+    let ip = this.config.ip; 
     let slot = this.config.slot;
     console.log(ip);
     console.log(slot);
@@ -75,12 +76,24 @@ class PlcConnection {
   async test(){
     await this.init()
 
+    let influxClient = await initInflux() 
     this.config.tags.map(async (tag)=>{
       let tag_name = tag.name
       let tags
       let reading = await this.plc.read(tag_name)
       //console.log(tag_name+": "+reading)
-      console.log(this.config)
+      const point = Point.measurement("plc_data")
+        .setTag("plant", this.config.plant)
+        .setTag("area", this.config.area)
+        .setTag("line", this.config.line)
+        .setTag("plc", this.config.name)
+        .setTag("equipment", tag.equipment)          // "Motor_01"
+        .setTag("metric", tag.metric)                // "temperature", "speed", "current", "status"
+        .setTag("unit", tag.unit)
+        .setFloatField("value", reading);
+
+        await influxClient.write(point, process.env.INFLUX_DB)
+        //console.log(this.config)
     })
   }
 
@@ -93,6 +106,7 @@ class PlcConnection {
         let tag_name = tag.name
         let tags
         let reading = await this.plc.read(tag_name)
+
         console.log(tag_name+": "+reading)
       })
     },2000)
@@ -111,10 +125,10 @@ getallPLCs = async ()=>{
 
 //getallPLCs()
 
-plc1 = new PlcConnection("Line1_Motor_PLC");
+plc1 = new PlcConnection("PLC_001");
 
 //plc1.pollOnce()
 //plc1.start()
-//plc1.test()
+plc1.test()
 
 

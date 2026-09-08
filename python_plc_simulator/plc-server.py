@@ -1,3 +1,4 @@
+# plc_all_in_one.py
 import subprocess
 import time
 import random
@@ -9,6 +10,7 @@ from cpppo.server.enip.parser import REAL, DINT
 HOST = 'localhost'
 PORT = 44818
 
+# --- 1. Start the cpppo EtherNet/IP server as a background subprocess ---
 server_cmd = [
     sys.executable, "-m", "cpppo.server.enip",
     "--address", f"0.0.0.0:{PORT}",
@@ -18,13 +20,17 @@ server_cmd = [
     "Motor1_Status=DINT[1]",
 ]
 
-print("Starting cpppo EtherNet/IP server...")
 print("Using interpreter:", sys.executable)
+print("Starting cpppo EtherNet/IP server...")
 server_proc = subprocess.Popen(server_cmd)
+
+# Make sure the server process gets killed when this script exits
 atexit.register(server_proc.terminate)
 
+# Give the server a moment to actually bind the port before we start writing
 time.sleep(2)
 
+# --- 2. Feed fake motor data into it ---
 def feed_loop():
     with client(host=HOST, port=PORT) as conn:
         while True:
