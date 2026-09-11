@@ -13,12 +13,12 @@ editPLCs.get("/",async (req,res)=>{
 })
 
 testPLC = {
-  name: 'PLC_001',
+  name: 'PLC_002',
   plant: 'Plant_01',
   area: 'Area_A',
   line: 'Line_01',
   connection: {
-    ip: '172.0.0.1',
+    ip: '127.0.0.2',
     slot: 0
   },
   pollIntervalMs: 2000,

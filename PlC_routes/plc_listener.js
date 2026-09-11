@@ -38,8 +38,8 @@ class PlcConnection {
     // insert into this.db. What did Stage 7 look like?
     const plc = new PLC();
     const plcDB = await plcs.findOne({name: this.name})//.toArray();
-    //console.log(plcDB)
-    console.log(this.name)
+    console.log(plcDB)
+    //console.log(this.name)
     this.config = {    
     name: plcDB.name,
     plant: plcDB.plant,
@@ -90,7 +90,7 @@ class PlcConnection {
         .setTag("metric", tag.metric)                // "temperature", "speed", "current", "status"
         .setTag("unit", tag.unit)
         .setFloatField("value", reading);
-
+ 
         await influxClient.write(point, process.env.INFLUX_DB)
         //console.log(this.config)
     })
@@ -99,14 +99,25 @@ class PlcConnection {
   async start() {
     // Set up setInterval calling this.pollOnce(), store the id in this.intervalId
     await this.init()
-    
+    let influxClient = await initInflux() 
+
     setInterval(async () => {
       this.config.tags.map(async (tag)=>{
-        let tag_name = tag.name
-        let tags
+        let tag_name = tag.address
         let reading = await this.plc.read(tag_name)
-
-        console.log(tag_name+": "+reading)
+        //console.log(tag_name+": "+reading)
+        const point = Point.measurement("plc_data")
+          .setTag("plant", this.config.plant)
+          .setTag("area", this.config.area)
+          .setTag("line", this.config.line)
+          .setTag("plc", this.config.name)
+          .setTag("equipment", tag.equipment)          // "Motor_01"
+          .setTag("metric", tag.metric)                // "temperature", "speed", "current", "status"
+          .setTag("unit", tag.unit)
+          .setFloatField("value", reading);
+        
+          await influxClient.write(point, process.env.INFLUX_DB)
+          //console.log(this.config)
       })
     },2000)
   }
@@ -125,9 +136,10 @@ getallPLCs = async ()=>{
 //getallPLCs()
 
 plc1 = new PlcConnection("PLC_001");
-
+plc2 = new PlcConnection("PLC_002")
 //plc1.pollOnce()
 //plc1.start()
-plc1.test()
+plc1.start()
+plc2.start()
 
 
